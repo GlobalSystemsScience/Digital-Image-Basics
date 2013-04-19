@@ -414,6 +414,7 @@ public class DataInImages extends InteractiveDisplay {
 		container.setPreferredSize(new Dimension(50, 50));
 		System.out.println("images\\left_" + color + ".png");
 		ImageIcon left = new ImageIcon(getClass().getResource("/images/left_" + color + ".png"));
+                System.out.println("2");
 		ImageIcon up = new ImageIcon(getClass().getResource("/images/up_" + color + ".png"));
 		ImageIcon down = new ImageIcon(getClass().getResource("/images/down_" + color + ".png"));
 		ImageIcon right = new ImageIcon(getClass().getResource("/images/right_" + color + ".png"));

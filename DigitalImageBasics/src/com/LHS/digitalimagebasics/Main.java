@@ -16,7 +16,7 @@ import javax.swing.JMenuItem;
 
 public class Main {
 	public enum Mode {INTRODUCTION, PIXELS, COLORS, DATA_IN_IMAGES, FALSE_COLOR, CHECK_COLOR, ABOUT};
-	public static final int x=0, y=0, width=1020, height=760;
+	public static final int x=0, y=0, width=1150, height=760;
 	
 	private static final String[] fileLabels = new String[] {"Save Picture"}; //, "Print Picture"};
 	private Mode mode;

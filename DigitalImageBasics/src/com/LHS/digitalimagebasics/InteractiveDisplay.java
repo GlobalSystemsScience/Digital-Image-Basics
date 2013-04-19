@@ -24,6 +24,8 @@ import java.awt.print.Paper;
 import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -168,7 +170,12 @@ public abstract class InteractiveDisplay {
 		imageConstraints.gridy = 0;
 		imageConstraints.gridheight = 4;
 		this.imageIndex = 0;
-		imageIcon = new ImageIcon(getClass().getResource(imageURL));
+            try {
+                imageIcon = new ImageIcon(ImageIO.read(getClass().getResource(imageURL)));
+            } catch (IOException ex) {
+                Logger.getLogger(InteractiveDisplay.class.getName()).log(Level.SEVERE, null, ex);
+            }
+		//imageIcon = new ImageIcon(getClass().getResource(imageURL));
 		imageLabel = new JLabel(imageIcon);
 		imageLabel.setName(IMAGE_NAME);
 
@@ -187,15 +194,17 @@ public abstract class InteractiveDisplay {
 				public void mouseMoved(MouseEvent arg0) {
 					Point target = arg0.getPoint();
 					int pixel = getBufferedImage().getRGB(target.x, target.y);
-					System.out.println(getBufferedImage().getRGB(target.x, target.y));
 					handlePixelValue(pixel);
 				}
 			});
 		}
-		
+		System.out.println(imageIcon.getIconWidth()+", "+imageIcon.getIconHeight());
 		imagePane.setPreferredSize(new Dimension(imageIcon.getIconWidth(), imageIcon.getIconHeight()));
 		imageLabel.setMinimumSize(new Dimension(imageIcon.getIconWidth(), imageIcon.getIconHeight()));
 		imageLabel.setBounds(0, 0, imageIcon.getIconWidth(), imageIcon.getIconHeight());
+                /*imageLabel.setBounds(0,0,512,512);
+                imageLabel.setMinimumSize(new Dimension(512,512));
+                imagePane.setPreferredSize(new Dimension(512, 512));*/
 		if (this.imageIndex == this.captions.length-1) {
 			System.out.println("RESIZING");
 			imageLabel.setBounds(0,0,512,512);
