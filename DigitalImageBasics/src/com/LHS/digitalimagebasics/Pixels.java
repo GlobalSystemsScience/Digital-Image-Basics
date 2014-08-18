@@ -211,7 +211,7 @@ public class Pixels extends InteractiveDisplay {
 			
 			Image img = resChange.decreaseResolution(resolutionSelections[resolution]);
 			Image scaled = img.getScaledInstance(512, 512, Image.SCALE_SMOOTH);
-			
+			numPixels.setText(resolutionSelections[resolution] + "x" + resolutionSelections[resolution] + "=" + resolutionSelections[resolution]*resolutionSelections[resolution]);
 			Pixels.this.changePicture(scaled);
 			
 		} catch (IOException e) {
