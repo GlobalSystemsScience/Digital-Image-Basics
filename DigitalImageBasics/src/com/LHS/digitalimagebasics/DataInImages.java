@@ -532,7 +532,7 @@ class AdvancedMouseListener extends MouseInputAdapter {
 	
 	public void mouseMoved(MouseEvent e) {
 		// TODO Auto-generated method stub
-		System.out.println("Moving");
+		//System.out.println("Moving");
 		
 		
 	}

@@ -21,13 +21,21 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
+import javax.print.*;
+import javax.print.attribute.*;
+import javax.print.attribute.standard.Copies;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -118,11 +126,15 @@ public abstract class InteractiveDisplay {
 				System.out.println("SPECIAL: " + specialIndex + "  " + target.getSelectedIndex());
 				if (specialIndex == target.getSelectedIndex()) {	//Upload own picture
 					JFileChooser fc = new JFileChooser();
+					FileNameExtensionFilter filter = new FileNameExtensionFilter("Image (jpg, gif, png)", new String[] {"jpg", "jpeg", "gif", "png"});
+					fc.setFileFilter(filter);
+					fc.addChoosableFileFilter(filter);
 					int returnVal = fc.showOpenDialog(target);
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
 		                File file = fc.getSelectedFile();
 		                //FileWriter fw = new FileWriter(file);
 		                String ext = file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".")+1);
+		                System.out.println(ext);
 		                File destFile = new File(getClass().getResource("/images/user" + ext).getFile());
 		                try {
 							BufferedImage img = createResizedCopy(ImageIO.read(file), 512, 512, true);
@@ -131,7 +143,7 @@ public abstract class InteractiveDisplay {
 							e1.printStackTrace();
 						}
 		                
-		                System.out.println(ext);
+		                
 		                
 		                newRelURL = "/images/user" + ext;
 		                newCaption = "Your Picture";
@@ -459,51 +471,42 @@ public abstract class InteractiveDisplay {
 	protected void setResize(int num) {
 		this.resizeDimension = num;
 	}
-//	public void printPicture() {
-//		PrinterJob pj = PrinterJob.getPrinterJob();
-//		if (pj.printDialog()) {
-//			try {
-////				PageFormat pf = new PageFormat();
-////				Paper p = new Paper();
-////				//p.setImageableArea(this.imagePane.getX(), this.imagePane.getY(), this.imagePane.getWidth(), imagePane.getHeight());
-////				pf.setPaper(p);
-////				pj.pageDialog(pf);
-//				
-//				pj.print();
-//				System.out.println("Printed");
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
-//			System.out.println("Printed");
-//		}
-//		
-//		
-//		PrintRequestAttributeSet pras = new HashPrintRequestAttributeSet();
-//		 pras.add(new Copies(1));
-//		 PrintService pss[] = PrintServiceLookup.lookupPrintServices(DocFlavor.INPUT_STREAM.GIF, pras);
-//		 if (pss.length == 0)
-//		      throw new RuntimeException("No printer services available.");
-//		 PrintService ps = pss[0];
-//		 System.out.println("Printing to " + ps);
-//		 DocPrintJob job = ps.createPrintJob();
-//		 FileInputStream fin;
-//		try {
-//			fin = new FileInputStream("YOurImageFileName.PNG");
-//		
-//			Doc doc = new SimpleDoc(fin, DocFlavor.INPUT_STREAM.GIF, null);
-//		 
-//			job.print(doc, pras);
-//		
-//			fin.close();
-//		} catch (PrintException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (FileNotFoundException e) {
-//		// TODO Auto-generated catch block
-//		e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//	}
+	public void printPicture() {
+		PrinterJob pj = PrinterJob.getPrinterJob();
+	    pj.setPrintable(new Printable()
+	     {
+	       public int print(Graphics graphics, PageFormat pf, int pageIndex) throws PrinterException
+	       {
+	         if (pageIndex > 0) {
+	           return 1;
+	         }
+	         Graphics2D g2d = (Graphics2D)graphics;
+	         g2d.translate(pf.getImageableX(), pf.getImageableY());
+	         g2d.drawImage(InteractiveDisplay.this.getBufferedImage(), 0, 0, null);
+	         return 0;
+	       }
+	     });
+	     if (pj.printDialog())
+	       try {
+	         pj.print();
+	       } catch (PrinterException e1) {
+	         e1.printStackTrace();
+	       }
+		/*if (pj.printDialog()) {
+			try {
+				PageFormat pf = new PageFormat();
+				Paper p = new Paper();
+				p.setImageableArea(this.imagePane.getX(), this.imagePane.getY(), this.imagePane.getWidth(), imagePane.getHeight());
+				pf.setPaper(p);
+				pj.pageDialog(pf);
+				
+				pj.print();
+				System.out.println("Printed");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			System.out.println("Printed");
+		}*/
+		
+	}
 }
