@@ -10,7 +10,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.MediaTracker;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -20,22 +19,16 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
-import java.awt.print.Paper;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
-import javax.print.*;
-import javax.print.attribute.*;
-import javax.print.attribute.standard.Copies;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -77,6 +70,9 @@ public abstract class InteractiveDisplay {
 	protected MouseInputAdapter mouseClick = null;
 	private GridBagConstraints imageConstraints;
 	
+	private BufferedImage usrImage = null;
+	private boolean usingOwnImg = false;
+	
 	//Instructions at 0,0
 	//Image list at 0,1
 	//Specifics at 0,2
@@ -112,14 +108,14 @@ public abstract class InteractiveDisplay {
 		constraints.gridy = 1;
 		constraints.gridheight = 1;
 		this.captions = captions;
-		JComboBox list = new JComboBox(labels);
+		JComboBox<String> list = new JComboBox<String>(labels);
 		final int specialIndex = list.getItemCount();
 		list.addItem("Your Picture");
 		System.out.println("CAPTIONS: " + captions.length);
 		list.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				JComboBox target = (JComboBox)arg0.getSource();
+				JComboBox<?> target = (JComboBox<?>)arg0.getSource();
 				
 				String newRelURL = null;
 				String newCaption = null;
@@ -129,23 +125,35 @@ public abstract class InteractiveDisplay {
 					FileNameExtensionFilter filter = new FileNameExtensionFilter("Image (jpg, gif, png)", new String[] {"jpg", "jpeg", "gif", "png"});
 					fc.setFileFilter(filter);
 					fc.addChoosableFileFilter(filter);
+					FileNameExtensionFilter filter2 = new FileNameExtensionFilter("JPG & JPEG", new String[] {"jpg", "jpeg"});
+					fc.addChoosableFileFilter(filter2);
+					FileNameExtensionFilter filter3 = new FileNameExtensionFilter("PNG", new String[] {"png"});
+					fc.addChoosableFileFilter(filter3);
+					FileNameExtensionFilter filter4 = new FileNameExtensionFilter("GIF", new String[] {"gif"});
+					fc.addChoosableFileFilter(filter4);
 					int returnVal = fc.showOpenDialog(target);
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
 		                File file = fc.getSelectedFile();
 		                //FileWriter fw = new FileWriter(file);
-		                String ext = file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".")+1);
-		                System.out.println(ext);
-		                File destFile = new File(getClass().getResource("/images/user" + ext).getFile());
+		                String ext = file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".")+1).toLowerCase();
+		                File destFile = new File("user." + ext);
+		                
+		                //System.out.println("Path and file: " + getClass().getClassLoader().getResource("/images/user." + ext) + " - " + destFile2);
+		                //File destFile = new File("user." + ext);
 		                try {
-							BufferedImage img = createResizedCopy(ImageIO.read(file), 512, 512, true);
-							ImageIO.write(img, ext, destFile);
+		                	//usrImage = ImageIO.read(file);
+		                	usrImage = createResizedCopy(ImageIO.read(file), 512, 512, true);
+		                			
+							ImageIO.write(usrImage, ext, destFile);
+							usingOwnImg = true;
+							//ImageIO.write(usrImage, ext, new File("test."+ext));
 						} catch (IOException e1) {
 							e1.printStackTrace();
 						}
 		                
 		                
 		                
-		                newRelURL = "/images/user" + ext;
+		                newRelURL = "user." + ext;
 		                newCaption = "Your Picture";
 					} else {
 						target.setSelectedIndex(InteractiveDisplay.this.imageIndex);
@@ -154,10 +162,11 @@ public abstract class InteractiveDisplay {
 				} else {
 					newRelURL = relURLS[target.getSelectedIndex()];
 					newCaption = captions[target.getSelectedIndex()];
+					usingOwnImg = false;
 				}
 				InteractiveDisplay.this.imageIndex = target.getSelectedIndex();
 				InteractiveDisplay.this.imageURL = newRelURL;
-				
+				//System.out.println("newRelURL " + newRelURL);
 				changePicture(InteractiveDisplay.this.imageURL);
 				changeCaption(newCaption);
 			}
@@ -240,14 +249,18 @@ public abstract class InteractiveDisplay {
 	private BufferedImage getImage(String relURL) {
 		BufferedImage img = null;
 		try {
-                    System.out.println(getClass().getResource(relURL));
+                	if(!usingOwnImg)
+                		img = ImageIO.read(getClass().getResource(relURL));
+                	else
+                		img = usrImage;
+
                     /*Image i = Toolkit.getDefaultToolkit().getImage(getClass().getResource(relURL));
                     MediaTracker mt = new MediaTracker(imageContainer);
                     mt.addImage(i, 1);
                     mt.waitForAll();
                     img = new BufferedImage(i.getWidth(null), i.getHeight(null), BufferedImage.TYPE_INT_RGB);
                     img.getGraphics().drawImage(i, 0, 0, null);*/
-                    img = ImageIO.read(getClass().getResource(relURL));
+                    
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -255,16 +268,15 @@ public abstract class InteractiveDisplay {
 	}
 	protected void changePicture(String newRelURL) {
 		BufferedImage img = getImage(newRelURL);
-		
 //		image = img;
 		if (this.imageIndex == this.captions.length-1) {
 			System.out.println("RESIZING");
-			
 
 		} else {
 			//imageLabel.setBounds(0,0,imageIcon.getIconWidth(), imageIcon.getIconHeight());
 		}
 		if (resizeDimension != -1) {
+			//System.out.println("Resize Dimension: " + resizeDimension);
 			img = InteractiveDisplay.createResizedCopy(img, resizeDimension, resizeDimension, true);
 		}
 		ToolkitImage newImage = (ToolkitImage) Toolkit.getDefaultToolkit().createImage(img.getSource());
@@ -323,7 +335,11 @@ public abstract class InteractiveDisplay {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					JFrame popup = new JFrame("Original Image");
-					ImageIcon original = new ImageIcon(getClass().getResource(imageURL));
+					ImageIcon original;
+					if(!usingOwnImg)
+						original = new ImageIcon(getClass().getResource(imageURL));
+					else
+						original = new ImageIcon(InteractiveDisplay.this.usrImage);
 					popup.setBounds(0,0, original.getIconWidth(), original.getIconHeight());
 					JLabel originalLabel = new JLabel(original);
 					popup.add(originalLabel);
@@ -349,7 +365,10 @@ public abstract class InteractiveDisplay {
 		}
 	}
 	protected BufferedImage getOriginalBufferedImage() throws IOException {
-            return ImageIO.read(getClass().getResource(imageURL)); 
+        if(!usingOwnImg)    
+        	return ImageIO.read(getClass().getResource(imageURL)); 
+        else
+        	return usrImage;
 		
 	}
 	protected void setUpPixelValue(String label1, String label2, String label3) {
