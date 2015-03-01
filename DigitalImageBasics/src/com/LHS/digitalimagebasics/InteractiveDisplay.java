@@ -136,9 +136,10 @@ public abstract class InteractiveDisplay {
 		                File file = fc.getSelectedFile();
 		                //FileWriter fw = new FileWriter(file);
 		                String ext = file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".")+1).toLowerCase();
-		                File destFile = new File("user." + ext);
+		                File destFile = new File(fc.getFileSystemView().getHomeDirectory(), "DIB Files/user-img." + ext);
+		                destFile.mkdirs();
 		                
-		                //System.out.println("Path and file: " + getClass().getClassLoader().getResource("/images/user." + ext) + " - " + destFile2);
+		                
 		                //File destFile = new File("user." + ext);
 		                try {
 		                	//usrImage = ImageIO.read(file);
@@ -153,7 +154,8 @@ public abstract class InteractiveDisplay {
 		                
 		                
 		                
-		                newRelURL = "user." + ext;
+		                newRelURL = destFile.getPath();
+		                //System.out.println("Path and file: " + newRelURL);
 		                newCaption = "Your Picture";
 					} else {
 						target.setSelectedIndex(InteractiveDisplay.this.imageIndex);
