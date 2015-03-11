@@ -18,7 +18,7 @@ public class Main {
 	public enum Mode {INTRODUCTION, PIXELS, COLORS, DATA_IN_IMAGES, FALSE_COLOR, CHECK_COLOR, ABOUT};
 	public static final int x=0, y=0, width=1150, height=760;
 	
-	private static final String[] fileLabels = new String[] {"Save Picture"}; //, "Print Picture"};
+	private static final String[] fileLabels = new String[] {"Save Picture", "Print Picture"}; 
 	private Mode mode;
 	
 	private JFrame mainDisplay;
@@ -119,9 +119,9 @@ public class Main {
 					else if (label.equals(helpLabels[0])) {
 						BrowserControl.displayURL("http://www.globalsystemsscience.org");
 					}
-//					else if (label.equals(fileLabels[1])) {	//Print picture
-//						variableDisplay.printPicture();
-//					}
+					else if (label.equals(fileLabels[1]) && (variableDisplay != null)) {	//Print picture
+						variableDisplay.printPicture();
+					}
 
 				}
 			});

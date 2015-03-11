@@ -24,7 +24,7 @@ public class GridCover extends JPanel {
 			int gap = 512/numLines;
 			g.setColor(Color.white);
 			for (int i=0; i < 512; i+= gap) {
-				System.out.println("Making lines");
+				//System.out.println("Making lines");
 				g.drawLine(i, 0, i, 512);
 				g.drawLine(0, i, 512, i);
 			}

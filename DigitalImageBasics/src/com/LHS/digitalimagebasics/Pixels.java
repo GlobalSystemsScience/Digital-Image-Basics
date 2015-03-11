@@ -208,10 +208,9 @@ public class Pixels extends InteractiveDisplay {
 		try {
 			BufferedImage image = Pixels.this.getOriginalBufferedImage();
 			ResolutionChanger resChange = new ResolutionChanger(image);
-			
 			Image img = resChange.decreaseResolution(resolutionSelections[resolution]);
 			Image scaled = img.getScaledInstance(512, 512, Image.SCALE_SMOOTH);
-			
+			numPixels.setText(resolutionSelections[resolution] + "x" + resolutionSelections[resolution] + "=" + resolutionSelections[resolution]*resolutionSelections[resolution]);
 			Pixels.this.changePicture(scaled);
 			
 		} catch (IOException e) {

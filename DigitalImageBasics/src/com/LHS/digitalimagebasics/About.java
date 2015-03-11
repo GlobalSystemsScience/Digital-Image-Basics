@@ -18,7 +18,8 @@ public class About {
 		JLabel info = new JLabel("<html>" +
 				"The original software components were created by John Pickle and Jacqueline Krtley,<br>" +
 				"Museum of Science, Boston, MA in support of the Lawrence Hall of Science's Global<br> Systems " +
-				"Science student series in 2002 with NASA funding<br><br>" +
+				"Science student series in 2002 with NASA funding<br>" +
+				"Additional work on the Java version was done by Maxime Israel at the University of <br>Massachusetts in February 2015.<br><br>" +
 				"This Revision was created by Ben Augarten, Lawrence Hall of Science, Berkeley, CA, converting the program from " +
 				"Real Basic to Java to provide for a more modern, maintainable, and stable platform<br><br>" +
 				"These revisions were created to support the NASA-funded project, Digital Earth Watch,<br>" +

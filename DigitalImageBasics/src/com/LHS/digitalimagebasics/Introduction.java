@@ -2,6 +2,7 @@ package com.LHS.digitalimagebasics;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 
 import javax.swing.ImageIcon;
@@ -32,6 +33,11 @@ public class Introduction {
 		System.out.println(Introduction.class.getResource("/intro_layers.png"));
 		ImageIcon icon = new ImageIcon(Introduction.class.getResource("/images/intro_layers.png"));
 		JLabel label = new JLabel(icon);
+		
+		//Filler to align images on initial screen
+		JLabel filler = new JLabel();
+		filler.setPreferredSize(new Dimension(200,3));
+		
 		//System.out.println(getClass().getResource("/images/flower.png"));
 		ImageIcon flower = new ImageIcon(getClass().getResource("/images/flower.png"));
 		JLabel flowerLabel = new JLabel(flower);
@@ -44,6 +50,7 @@ public class Introduction {
 		
 		container.add(text);
 		container.add(label);
+		container.add(filler);
 		container.add(flowerLabel);
 		container.add(riverLabel);
 		container.add(fishLabel);
